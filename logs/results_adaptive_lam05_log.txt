@@ -1,0 +1,23 @@
+DRL-MADRL Simulation  |  episodes=30  tasks=1000  lambda=0.5  seeds=[42, 43, 44, 45, 46]  eval_window=10
+
+  Running DRL-MADRL ... done (674s)  ATCT=12.42s±0.53  SLA=97.17%  Energy=4.53 kWh
+    [checkpoint saved -> results_adaptive_lam05/]
+  Running DRL-MADRL-Adaptive ... done (635s)  ATCT=13.84s±0.73  SLA=95.08%  Energy=4.58 kWh
+    [checkpoint saved -> results_adaptive_lam05/]
+  Running DRL-MADRL-NPS ... done (623s)  ATCT=15.25s±0.71  SLA=93.54%  Energy=4.82 kWh
+    [checkpoint saved -> results_adaptive_lam05/]
+  Running PCH ... done (8s)  ATCT=12.09s±0.41  SLA=97.48%  Energy=4.51 kWh
+    [checkpoint saved -> results_adaptive_lam05/]
+
+Total time: 1940s
+
+========================================================================================
+Method                    ATCT(s)      Std    Energy(kWh)     SLA(%)    Tasks
+----------------------------------------------------------------------------------------
+DRL-MADRL                    12.4     0.53            4.5       97.2     1000
+DRL-MADRL-Adaptive           13.8     0.73            4.6       95.1     1000
+DRL-MADRL-NPS                15.2     0.71            4.8       93.5     1000
+PCH                          12.1     0.41            4.5       97.5     1000
+========================================================================================
+
+Results saved to results_adaptive_lam05/

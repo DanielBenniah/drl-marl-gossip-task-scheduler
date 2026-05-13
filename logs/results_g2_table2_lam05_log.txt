@@ -1,0 +1,35 @@
+DRL-MADRL Simulation  |  episodes=30  tasks=1000  lambda=0.5  seeds=[42, 43, 44, 45, 46]  eval_window=10
+
+  Running Random ... done (5s)  ATCT=27.96s±1.34  SLA=72.22%  Energy=6.14 kWh
+    [checkpoint saved -> results_g2_table2_lam05/]
+  Running WeightedRR ... done (4s)  ATCT=22.02s±0.58  SLA=81.50%  Energy=5.50 kWh
+    [checkpoint saved -> results_g2_table2_lam05/]
+  Running PriorityMinMin ... done (4s)  ATCT=12.92s±0.32  SLA=96.83%  Energy=4.59 kWh
+    [checkpoint saved -> results_g2_table2_lam05/]
+  Running PCH ... done (8s)  ATCT=12.09s±0.41  SLA=97.48%  Energy=4.51 kWh
+    [checkpoint saved -> results_g2_table2_lam05/]
+  Running PPO ... done (11s)  ATCT=13.24s±0.65  SLA=96.70%  Energy=4.87 kWh
+    [checkpoint saved -> results_g2_table2_lam05/]
+  Running MADDPG ... done (393s)  ATCT=19.46s±1.44  SLA=86.50%  Energy=5.42 kWh
+    [checkpoint saved -> results_g2_table2_lam05/]
+  Running MAPPO ... done (24s)  ATCT=14.67s±1.19  SLA=94.04%  Energy=4.94 kWh
+    [checkpoint saved -> results_g2_table2_lam05/]
+  Running DRL-MADRL ... done (674s)  ATCT=12.53s±0.59  SLA=97.07%  Energy=4.54 kWh
+    [checkpoint saved -> results_g2_table2_lam05/]
+
+Total time: 1122s
+
+========================================================================================
+Method                    ATCT(s)      Std    Energy(kWh)     SLA(%)    Tasks
+----------------------------------------------------------------------------------------
+Random                       28.0     1.34            6.1       72.2     1000
+WeightedRR                   22.0     0.58            5.5       81.5     1000
+PriorityMinMin               12.9     0.32            4.6       96.8     1000
+PCH                          12.1     0.41            4.5       97.5     1000
+PPO                          13.2     0.65            4.9       96.7     1000
+MADDPG                       19.5     1.44            5.4       86.5     1000
+MAPPO                        14.7     1.19            4.9       94.0     1000
+DRL-MADRL                    12.5     0.59            4.5       97.1     1000
+========================================================================================
+
+Results saved to results_g2_table2_lam05/

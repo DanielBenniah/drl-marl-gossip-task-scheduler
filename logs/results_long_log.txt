@@ -1,0 +1,25 @@
+DRL-MADRL Simulation  |  episodes=200  tasks=1000  lambda=0.5  seeds=[42, 43, 44, 45, 46]  eval_window=20
+
+  Running Random ... done (30s)  ATCT=28.25s±1.00  SLA=72.51%  Energy=6.28 kWh
+  Running WeightedRR ... done (27s)  ATCT=22.21s±0.40  SLA=81.52%  Energy=5.69 kWh
+  Running PriorityMinMin ... done (26s)  ATCT=13.03s±0.17  SLA=96.86%  Energy=4.70 kWh
+  Running PPO ... done (73s)  ATCT=13.13s±0.43  SLA=96.81%  Energy=4.71 kWh
+  Running MADDPG ... done (2654s)  ATCT=15.90s±1.23  SLA=92.65%  Energy=5.03 kWh
+  Running MAPPO ... done (88s)  ATCT=13.71s±0.79  SLA=95.87%  Energy=4.82 kWh
+  Running DRL-MADRL ... done (4819s)  ATCT=12.17s±0.21  SLA=97.48%  Energy=4.60 kWh
+
+Total time: 7717s
+
+========================================================================================
+Method                    ATCT(s)      Std    Energy(kWh)     SLA(%)    Tasks
+----------------------------------------------------------------------------------------
+Random                       28.2     1.00            6.3       72.5     1000
+WeightedRR                   22.2     0.40            5.7       81.5     1000
+PriorityMinMin               13.0     0.17            4.7       96.9     1000
+PPO                          13.1     0.43            4.7       96.8     1000
+MADDPG                       15.9     1.23            5.0       92.6     1000
+MAPPO                        13.7     0.79            4.8       95.9     1000
+DRL-MADRL                    12.2     0.21            4.6       97.5     1000
+========================================================================================
+
+Results saved to results_long/

@@ -1,0 +1,35 @@
+DRL-MADRL Simulation  |  episodes=30  tasks=1000  lambda=50.0  seeds=[42, 43, 44, 45, 46]  eval_window=10
+
+  Running Random ... done (3s)  ATCT=22.35s±0.44  SLA=81.23%  Energy=2.69 kWh
+    [checkpoint saved -> results_g2_lam50/]
+  Running WeightedRR ... done (3s)  ATCT=21.74s±0.69  SLA=81.54%  Energy=2.45 kWh
+    [checkpoint saved -> results_g2_lam50/]
+  Running PriorityMinMin ... done (3s)  ATCT=21.88s±0.61  SLA=84.10%  Energy=2.76 kWh
+    [checkpoint saved -> results_g2_lam50/]
+  Running PCH ... done (6s)  ATCT=21.93s±0.60  SLA=85.99%  Energy=2.72 kWh
+    [checkpoint saved -> results_g2_lam50/]
+  Running PPO ... done (7s)  ATCT=22.23s±0.77  SLA=84.37%  Energy=2.64 kWh
+    [checkpoint saved -> results_g2_lam50/]
+  Running MADDPG ... done (17s)  ATCT=21.76s±0.88  SLA=84.40%  Energy=2.44 kWh
+    [checkpoint saved -> results_g2_lam50/]
+  Running MAPPO ... done (12s)  ATCT=21.84s±0.47  SLA=84.12%  Energy=2.60 kWh
+    [checkpoint saved -> results_g2_lam50/]
+  Running DRL-MADRL ... done (559s)  ATCT=21.11s±0.49  SLA=88.03%  Energy=2.67 kWh
+    [checkpoint saved -> results_g2_lam50/]
+
+Total time: 611s
+
+========================================================================================
+Method                    ATCT(s)      Std    Energy(kWh)     SLA(%)    Tasks
+----------------------------------------------------------------------------------------
+Random                       22.3     0.44            2.7       81.2     1000
+WeightedRR                   21.7     0.69            2.4       81.5     1000
+PriorityMinMin               21.9     0.61            2.8       84.1     1000
+PCH                          21.9     0.60            2.7       86.0     1000
+PPO                          22.2     0.77            2.6       84.4     1000
+MADDPG                       21.8     0.88            2.4       84.4     1000
+MAPPO                        21.8     0.47            2.6       84.1     1000
+DRL-MADRL                    21.1     0.49            2.7       88.0     1000
+========================================================================================
+
+Results saved to results_g2_lam50/

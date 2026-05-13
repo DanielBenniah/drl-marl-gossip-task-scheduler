@@ -1,0 +1,36 @@
+Hyperparameter sensitivity at lambda=20.0, 30 ep x 3 seeds, last-10 mean.
+Setting               tau      w           ATCT            SLA         Energy
+--------------------------------------------------------------------------------
+  (conservative seed=42 done in 108s)
+  (conservative seed=43 done in 108s)
+  (conservative seed=44 done in 110s)
+conservative        0.100  0.300   17.56±0.54   90.37±0.17    1.66±0.29
+  (paper-default seed=42 done in 110s)
+  (paper-default seed=43 done in 112s)
+  (paper-default seed=44 done in 116s)
+paper-default       0.050  0.150   18.70±0.10   89.00±0.70    2.00±0.20
+  (moderate-A seed=42 done in 119s)
+  (moderate-A seed=43 done in 118s)
+  (moderate-A seed=44 done in 117s)
+moderate-A          0.050  0.200   18.52±0.71   88.55±1.27    2.16±0.67
+  (moderate-B seed=42 done in 114s)
+  (moderate-B seed=43 done in 114s)
+  (moderate-B seed=44 done in 114s)
+moderate-B          0.100  0.200   18.85±0.13   89.10±0.19    2.34±0.27
+  (aggressive seed=42 done in 115s)
+  (aggressive seed=43 done in 114s)
+  (aggressive seed=44 done in 114s)
+aggressive          0.020  0.100   19.08±0.10   89.65±0.69    2.31±0.55
+  (very-aggressive seed=42 done in 112s)
+  (very-aggressive seed=43 done in 114s)
+  (very-aggressive seed=44 done in 116s)
+very-aggressive     0.020  0.050   18.75±0.54   88.66±0.70    1.60±0.19
+
+Total time: 2045s
+Wrote results_sensitivity/sensitivity.csv
+
+=== Verdict ===
+ATCT range across settings: 1.52 s
+SLA  range across settings: 1.82 pp
+VERDICT: Adaptive blend has noticeable hyperparameter sensitivity.
+Suggest reporting the full sensitivity scan in V-E.

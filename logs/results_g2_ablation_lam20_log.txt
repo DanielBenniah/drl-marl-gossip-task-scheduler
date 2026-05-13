@@ -1,0 +1,29 @@
+DRL-MADRL Simulation  |  episodes=30  tasks=1000  lambda=20.0  seeds=[42, 43, 44, 45, 46]  eval_window=10
+
+  Running DRL-MADRL ... done (548s)  ATCT=19.28s±0.76  SLA=90.53%  Energy=2.39 kWh
+    [checkpoint saved -> results_g2_ablation_lam20/]
+  Running DRL-MADRL-NGC ... done (544s)  ATCT=19.41s±0.63  SLA=89.00%  Energy=2.48 kWh
+    [checkpoint saved -> results_g2_ablation_lam20/]
+  Running DRL-MADRL-NRS ... done (565s)  ATCT=19.37s±0.60  SLA=90.56%  Energy=2.52 kWh
+    [checkpoint saved -> results_g2_ablation_lam20/]
+  Running DRL-MADRL-NER ... done (55s)  ATCT=19.31s±0.84  SLA=90.49%  Energy=2.30 kWh
+    [checkpoint saved -> results_g2_ablation_lam20/]
+  Running DRL-MADRL-NPS ... done (613s)  ATCT=19.38s±0.46  SLA=89.43%  Energy=2.38 kWh
+    [checkpoint saved -> results_g2_ablation_lam20/]
+  Running PCH ... done (7s)  ATCT=20.11s±0.60  SLA=87.62%  Energy=2.63 kWh
+    [checkpoint saved -> results_g2_ablation_lam20/]
+
+Total time: 2333s
+
+========================================================================================
+Method                    ATCT(s)      Std    Energy(kWh)     SLA(%)    Tasks
+----------------------------------------------------------------------------------------
+DRL-MADRL                    19.3     0.76            2.4       90.5     1000
+DRL-MADRL-NGC                19.4     0.63            2.5       89.0     1000
+DRL-MADRL-NRS                19.4     0.60            2.5       90.6     1000
+DRL-MADRL-NER                19.3     0.84            2.3       90.5     1000
+DRL-MADRL-NPS                19.4     0.46            2.4       89.4     1000
+PCH                          20.1     0.60            2.6       87.6     1000
+========================================================================================
+
+Results saved to results_g2_ablation_lam20/
