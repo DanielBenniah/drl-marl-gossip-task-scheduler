@@ -81,7 +81,7 @@ cross-references to the corresponding write-up in the paper.
 ## Repository layout
 
 ```
-<repository-root>/
+drl-marl-gossip-task-scheduler/
 ├── README.md                       # this file
 ├── LICENSE                         # MIT
 ├── requirements.txt                # NumPy, SciPy, Matplotlib (no PyTorch/TF)
