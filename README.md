@@ -2,17 +2,19 @@
 
 Code and experimental data accompanying the paper:
 
-> **"Decentralized Task Scheduling in Distributed Systems: A Lightweight,
-> Contention-Adaptive Multi-Agent Deep Reinforcement Learning Approach with
-> Gossip-Based Coordination"**
+> **"Decentralized Task Scheduling in Distributed Systems: A Lightweight
+> Multi-Agent Deep Reinforcement Learning Approach with Gossip-Based
+> Consensus"**
 > *Daniel Benniah John* — IEEE Access, 2026.
 
 A pure-NumPy implementation of a decentralized multi-agent scheduler for
 heterogeneous distributed systems. Each agent maintains a per-node gossip-
-derived utilization estimate vector and uses a contention-adaptive blend
-of priority-aware heuristic scoring and learned policy to make placement
-decisions. ~80 KB per agent, sub-10 ms decision latency, no deep-learning
-framework dependency.
+derived utilization estimate vector and combines priority-aware heuristic
+scoring with a learned policy for placement. Headline **Table II** results
+use the default `DRL-MADRL` configuration (gossip + adaptive reward shaping
++ priority scoring); an optional contention-adaptive score blend is available
+as `DRL-MADRL-Adaptive`. ~76 KB per agent (~20K parameters), sub-10 ms
+decision latency, no deep-learning framework dependency.
 
 ## Quick Start
 
@@ -22,30 +24,55 @@ cd drl-marl-gossip-task-scheduler
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# Headline Table II at the default contention regime (lambda=0.5)
-# 8 methods, 5 seeds, 30 episodes per seed
-python simulation.py --arrival-rate 0.5 --results-dir results/lam05
+# Inspect committed Table II results (low contention, lambda=0.5)
+cat results/g2_table2_lam05/results.json
 
-# At higher contention (where DRL-MADRL's advantage materializes)
-python simulation.py --arrival-rate 20 --results-dir results/lam20
-python simulation.py --arrival-rate 50 --results-dir results/lam50
+# Re-run Table II at moderate contention (where DRL-MADRL wins on SLA)
+python simulation.py --arrival-rate 20 --results-dir results/g2_table2_lam20
 
-# Section V-E ablation (5 ablation variants + PCH baseline)
+# Section V-E ablation (4 variants + PCH baseline)
 python simulation.py --arrival-rate 20 --scheduler ablation \
-                     --results-dir results/ablation_lam20
+                     --results-dir results/g2_ablation_lam20
 
 # Bonferroni-corrected pairwise significance vs DRL-MADRL
-python analysis.py --csv results/lam20/seed_means.csv \
-                   --out results/lam20/significance.csv
+python analysis.py --csv results/g2_table2_lam20/seed_means.csv \
+                   --out results/g2_table2_lam20/significance.csv
 
-# Per-method plateau verification (Welch t-test, first vs last quartile)
-python verify_run.py --csv results/lam20/raw_episodes.csv
+# Plateau verification (Welch t-test, first vs last quartile)
+python verify_run.py --csv results/long/raw_episodes.csv
 
-# Generate Figures 1, 2, 3 from a results directory
-python plot_results.py --episodes results/lam20/raw_episodes.csv \
-                       --seeds   results/lam20/seed_means.csv \
-                       --out-dir results/lam20/figures
+# Regenerate paper figures (see "Figure mapping" below)
+python plot_results.py --episodes results/long/raw_episodes.csv \
+                       --seeds   results/long/seed_means.csv \
+                       --out-dir results/long/figures
+python plot_results.py --episodes results/g2_table2_lam20/raw_episodes.csv \
+                       --seeds   results/g2_table2_lam20/seed_means.csv \
+                       --out-dir results/g2_table2_lam20/figures
+python plot_results.py --episodes results/g2_ablation_lam20/raw_episodes.csv \
+                       --seeds   results/g2_ablation_lam20/seed_means.csv \
+                       --out-dir results/g2_ablation_lam20/figures
 ```
+
+## Paper ↔ repository notes
+
+| Item | Paper | This repository |
+|---|---|---|
+| Observation dimension | R^54 (~20,069 params) | **50-D** (~19,557 params, ~76 KB) |
+| Reference capacity *C*<sub>ref</sub> | 12 cores | **16 cores** (`NODE_SPEED_REF_CAPACITY`) |
+| Headline DRL-MADRL | Main configuration (no adaptive blend) | `DRL-MADRL` (`contention_adaptive=False`) |
+| Adaptive blend | Optional refinement (Sec. IV-D) | `DRL-MADRL-Adaptive` or `--scheduler adaptive` |
+
+All committed CSV/JSON results were produced with the code as implemented here.
+
+## Figure mapping
+
+Script output filenames differ from paper figure numbers:
+
+| Repo output | Paper figure | Source directory |
+|---|---|---|
+| `figure1_learning.png` | **Fig. 2** (learning curves + plateau) | `results/long/` |
+| `figure2_bars.png` | **Fig. 3** (λ=20 bar comparison) | `results/g2_table2_lam20/` |
+| `figure3_ablation.png` | Ablation chart (Sec. V-E) | `results/g2_ablation_lam20/` |
 
 ## What this codebase contains
 
@@ -57,16 +84,16 @@ cross-references to the corresponding write-up in the paper.
 |---|---|
 | Heterogeneous 100 nodes (20/50/30 tiers, Sec. III-B) | `InfrastructureGenerator.create_nodes` |
 | Pareto duration α=1.5, log-normal CPU/mem, Poisson arrivals (Sec. III-C) | `WorkloadGenerator.generate_tasks` |
-| Effective execution time *t<sub>exec</sub>* = *t<sub>j</sub>* · (*C*<sub>ref</sub>/*C<sub>i</sub>*), C<sub>ref</sub>=16 (Sec. III-D) | `Node.assign` |
+| Effective execution time *t<sub>exec</sub>* = *t<sub>j</sub>* · (*C*<sub>ref</sub>/*C<sub>i</sub>*), C<sub>ref</sub>=16 (Sec. III-D) | `Node.speed_factor`, `Node.assign` |
 | Linear power model (Sec. III-E) | `Node.instantaneous_power` |
 | Per-agent vector gossip with O(N) payload, O(1) events (Sec. IV-C) | `PerAgentGossip` |
 | Actor-critic, 128-ReLU hidden, softmax over N candidates, 50-D obs (Sec. IV-B) | `ActorCriticNetwork`, `build_observation` |
-| Priority + capacity-weighted assignment score (Sec. IV-D, Eq. 14) | `priority_score`, `assignment_score`, `select_best_node` |
-| Contention-adaptive score blend (Sec. IV-D.1) | `DRLMADRLScheduler` with `contention_adaptive=True` |
+| Priority + capacity-weighted assignment score (Sec. IV-D, Eq. 14–15) | `priority_score`, `assignment_score`, `select_best_node` |
+| Contention-adaptive score blend — optional (Sec. IV-D) | `DRLMADRLScheduler` with `contention_adaptive=True` |
 | Adaptive reward shaping w<sub>SLA</sub>, w<sub>energy</sub> (Sec. IV-E) | `AdaptiveRewardShaper` |
 | Prioritized experience replay (Sec. IV-F) | `PrioritizedReplayBuffer` |
 | PPO-clipped actor update + entropy bonus | `ActorCriticNetwork.update`, `PolicyValueNetwork.update` |
-| Capacity-proportional Weighted Round-Robin baseline (Sec. V-A.2) | `WeightedRoundRobinScheduler` (deficit-weighted) |
+| Weighted Round-Robin baseline (Sec. V-A.2) | `WeightedRoundRobinScheduler` (deficit-weighted) |
 | Priority-aware Min-Min baseline (Sec. V-A.3) | `PriorityMinMinScheduler` |
 | Priority-Capacity Heuristic baseline (PCH, Sec. V-A) | `PriorityCapacityHeuristicScheduler` |
 | Single-agent PPO with shaped reward (Sec. V-A.4) | `PPOScheduler` |
@@ -75,8 +102,8 @@ cross-references to the corresponding write-up in the paper.
 | 30 episodes, last 10 averaged, 5 seeds 42–46 | `run_experiment` |
 | Bonferroni-corrected pairwise t-tests on seed-level means | `analysis.py` |
 | Section V-E ablations (NGC / NRS / NER / NPS) | `DRLMADRLScheduler` flags + registry keys |
-| Plateau verification (Welch t-test, first vs last quartile) | `verify_run.py` |
-| Hyperparameter sensitivity for the contention-adaptive blend | `run_sensitivity.py` |
+| Plateau verification — Fig. 2(b) (Welch t-test, first vs last quartile) | `verify_run.py` |
+| Hyperparameter sensitivity for the contention-adaptive blend (Table V) | `run_sensitivity.py` |
 
 ## Repository layout
 
@@ -85,37 +112,38 @@ drl-marl-gossip-task-scheduler/
 ├── README.md                       # this file
 ├── LICENSE                         # MIT
 ├── requirements.txt                # NumPy, SciPy, Matplotlib (no PyTorch/TF)
-├── RESULTS_SUMMARY.md              # supplementary results documentation
+├── RESULTS_SUMMARY.md              # extended results commentary (optional)
 │
 ├── marl_scheduler.py               # DRL-MADRL core (Sections III-IV)
 ├── simulation.py                   # Discrete-event simulator + all baselines
 ├── analysis.py                     # Bonferroni significance testing
 ├── verify_run.py                   # Plateau detection / training health
-├── plot_results.py                 # Figures 1, 2, 3 generator
-├── run_sensitivity.py              # Hyperparameter sensitivity (Table VI)
+├── plot_results.py                 # figure1/2/3 PNG generator (see mapping above)
+├── run_sensitivity.py              # Hyperparameter sensitivity (Table V)
 ├── diag_g2.py                      # Per-agent gossip mechanism diagnostic
 │
 ├── results/                        # All experiment outputs
-│   ├── g2_table2_lam05/            # Table II(a) source (lambda=0.5)
-│   ├── g2_table2_lam20/            # Table II(b) source (lambda=20)
-│   ├── g2_lam50/                   # Table II(c) source (lambda=50)
-│   ├── g2_ablation_lam20/          # Table V (ablation) source
-│   ├── sensitivity/                # Table VI (sensitivity scan) source
-│   ├── long/                       # Figure 1 source (200-ep learning curves)
+│   ├── g2_table2_lam05/            # Table II(a) source (lambda=0.5, low)
+│   ├── g2_table2_lam20/            # Table II(b) source (lambda=20, moderate)
+│   ├── g2_lam50/                   # Table II(c) source (lambda=50, high)
+│   ├── g2_ablation_lam20/          # Table IV (ablation) source
+│   ├── sensitivity/                # Table V (sensitivity scan) source
+│   ├── long/                       # Fig. 2 source (200-ep learning curves)
 │   ├── adaptive_lam05/             # Adaptive-blend comparison (lambda=0.5)
 │   ├── adaptive_lam20/             # Adaptive-blend comparison (lambda=20)
 │   └── adaptive_lam50/             # Adaptive-blend comparison (lambda=50)
-└── logs/                           # Run logs for each results directory
+└── logs/                           # Optional audit logs (canonical data: results/)
 ```
 
-Each subdirectory of `results/` contains:
+Each `results/` subdirectory contains at minimum:
 - `results.json` — aggregated mean/std per method
 - `seed_means.csv` — one row per `(method, seed)` of last-K-episode means
   (input for `analysis.py`)
 - `raw_episodes.csv` — one row per `(method, seed, episode)` (input for
   `plot_results.py` learning curves)
-- `significance.csv` — Bonferroni-corrected pairwise t-test results
-- `figures/figure{1,2,3}_*.png` — generated figures
+
+Some directories also include `significance.csv` (from `analysis.py`) and
+`figures/figure{1,2,3}_*.png` (from `plot_results.py`).
 
 ## Architecture
 
@@ -130,9 +158,9 @@ Actor       Critic
 softmax(N)  scalar V
 ```
 
-~20K parameters per agent → ~80 KB float32. Total system footprint is
-under 8 MB for all 100 agents. Per-agent gossip estimate vector adds
-~400 bytes per agent.
+~19.6K parameters per agent → ~76 KB float32 (paper reports ~20,069 / ~80 KB
+at 54-D). Total system footprint is under 8 MB for all 100 agents. Per-agent
+gossip estimate vector adds ~400 bytes per agent.
 
 Gossip (Section IV-C): each agent *i* maintains a vector
 **z**<sub>*i*</sub> ∈ ℝ<sup>*N*</sup> of estimates of all *N* nodes'
@@ -152,7 +180,7 @@ converges to the consensus mean in O(log *N*) rounds.
 |---|---|---|
 | `--episodes` | 30 | Training episodes per seed |
 | `--tasks` | 1000 | Tasks per episode |
-| `--arrival-rate` | 0.5 | Poisson λ; raise for contention. The default λ=0.5 leaves the cluster lightly loaded; λ ∈ {20, 50} test high-contention regimes. |
+| `--arrival-rate` | 0.5 | Poisson λ. λ=0.5 is low contention; λ=20 is moderate; λ=50 is high. |
 | `--scheduler` | `all` | `all` = 8 methods (classical + heuristic + learned baselines + DRL-MADRL); `marl` = 4 learned methods only; `ablation` = DRL-MADRL + 4 V-E variants + PCH; `adaptive` = DRL-MADRL + Adaptive + NPS + PCH; or any single method name from the registry. |
 | `--seeds` | `42,43,44,45,46` | Comma-separated seed list |
 | `--eval-window` | auto | Trailing episodes averaged for final metrics. Defaults to `max(10, episodes // 10)`. |
@@ -180,7 +208,7 @@ python analysis.py --csv <DIR>/seed_means.csv \
 
 Plateau verification using Welch t-tests on per-seed first vs last quartile
 of training episodes. Reports a method as plateaued if no significant
-trend is detected at α=0.05.
+trend is detected at α=0.05. Used for Fig. 2(b).
 
 ```bash
 python verify_run.py --csv <DIR>/raw_episodes.csv
@@ -188,8 +216,8 @@ python verify_run.py --csv <DIR>/raw_episodes.csv
 
 ### `plot_results.py`
 
-Generates Figures 1 (learning curves), 2 (bar comparison), and 3 (ablation)
-from a results directory:
+Generates `figure1_learning.png`, `figure2_bars.png`, and
+`figure3_ablation.png` from a results directory (see figure mapping above):
 
 ```bash
 python plot_results.py --episodes <DIR>/raw_episodes.csv \
@@ -200,8 +228,8 @@ python plot_results.py --episodes <DIR>/raw_episodes.csv \
 ### `run_sensitivity.py`
 
 Hyperparameter sensitivity scan for the contention-adaptive blend
-(Section IV-D.1). Tests six (τ, w) settings at λ=20 with 3 seeds. Used
-to generate Table VI.
+(Section IV-D). Tests six (τ, w) settings at λ=20 with 3 seeds. Used
+to generate Table V.
 
 ```bash
 python run_sensitivity.py
@@ -223,42 +251,50 @@ python diag_g2.py
 ## Reproducing the reported results
 
 Each reported table and figure has a corresponding directory in this
-repository (see the "Repository layout" section above). To reproduce
-from scratch:
+repository (see "Repository layout" above). To reproduce from scratch:
 
 ```bash
 # Table II — three contention regimes
-for L in 0.5 20 50; do
-  python simulation.py --arrival-rate $L \
-                       --results-dir "results/g2_table2_lam${L/./}"
-  python analysis.py --csv "results/g2_table2_lam${L/./}/seed_means.csv" \
-                     --out "results/g2_table2_lam${L/./}/significance.csv"
+python simulation.py --arrival-rate 0.5  --results-dir results/g2_table2_lam05
+python simulation.py --arrival-rate 20   --results-dir results/g2_table2_lam20
+python simulation.py --arrival-rate 50   --results-dir results/g2_lam50
+
+for DIR in results/g2_table2_lam05 results/g2_table2_lam20 results/g2_lam50; do
+  python analysis.py --csv "$DIR/seed_means.csv" \
+                     --out "$DIR/significance.csv"
 done
 
-# Table III — plateau verification (200 episodes)
+# Fig. 2(b) — plateau verification (200 episodes)
 python simulation.py --episodes 200 --eval-window 20 \
                      --arrival-rate 0.5 --results-dir results/long
 python verify_run.py --csv results/long/raw_episodes.csv
 
-# Table V — ablation under high contention
+# Table IV — ablation under moderate contention (lambda=20)
 python simulation.py --arrival-rate 20 --scheduler ablation \
                      --results-dir results/g2_ablation_lam20
-python analysis.py --csv results/g2_ablation_lam20/seed_means.csv
+python analysis.py --csv results/g2_ablation_lam20/seed_means.csv \
+                   --out results/g2_ablation_lam20/significance.csv
 
-# Table VI — adaptive-blend hyperparameter sensitivity
+# Table V — adaptive-blend hyperparameter sensitivity
 python run_sensitivity.py
 
-# Figure 1 — learning curves
+# Paper figures
 python plot_results.py --episodes results/long/raw_episodes.csv \
                        --seeds   results/long/seed_means.csv \
                        --out-dir results/long/figures
+python plot_results.py --episodes results/g2_table2_lam20/raw_episodes.csv \
+                       --seeds   results/g2_table2_lam20/seed_means.csv \
+                       --out-dir results/g2_table2_lam20/figures
+python plot_results.py --episodes results/g2_ablation_lam20/raw_episodes.csv \
+                       --seeds   results/g2_ablation_lam20/seed_means.csv \
+                       --out-dir results/g2_ablation_lam20/figures
 ```
 
 Wall-clock estimates on commodity laptop hardware (Apple M-series, no GPU):
 - Table II (one λ regime, 8 methods × 5 seeds × 30 ep): ~10–20 minutes
-- Table V (ablation, 6 variants × 5 seeds × 30 ep): ~50 minutes
-- Table VI (sensitivity, 6 settings × 3 seeds × 30 ep): ~35 minutes
-- Figure 1 (200 ep × 5 seeds × 4 methods): ~80 minutes
+- Table IV (ablation, 6 variants × 5 seeds × 30 ep): ~50 minutes
+- Table V (sensitivity, 6 settings × 3 seeds × 30 ep): ~35 minutes
+- Fig. 2 (200 ep × 5 seeds × 4 methods): ~80 minutes
 
 ## Notes on numerical stability
 
@@ -276,16 +312,15 @@ Q-networks with Polyak-averaged soft updates (τ = 0.005) — required to
 prevent off-policy bootstrapping divergence.
 
 These engineering choices are reflected in the paper's algorithm
-description. See `RESULTS_SUMMARY.md` for a fuller discussion of each
-choice and the rationale behind it.
+description. See `RESULTS_SUMMARY.md` for extended results commentary.
 
 ## Citation
 
 ```bibtex
 @article{benniah2026drlmadrl,
   title   = {Decentralized Task Scheduling in Distributed Systems:
-             A Lightweight, Contention-Adaptive Multi-Agent Deep
-             Reinforcement Learning Approach with Gossip-Based Coordination},
+             A Lightweight Multi-Agent Deep Reinforcement Learning
+             Approach with Gossip-Based Consensus},
   author  = {Daniel Benniah John},
   journal = {IEEE Access},
   year    = {2026}

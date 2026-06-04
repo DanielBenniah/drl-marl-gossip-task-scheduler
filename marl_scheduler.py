@@ -6,7 +6,7 @@ with Adaptive Decentralized Consensus via Gossip-Based Neighbor Coordination (AD
 
 Paper: "Decentralized Task Scheduling in Distributed Systems:
         A Lightweight Multi-Agent Deep Reinforcement Learning Approach
-        with Gossip-Based Consensus"
+        with Gossip-Based Consensus" (IEEE Access, 2026)
 Author: Daniel Benniah John
 """
 
